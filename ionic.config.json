@@ -1,0 +1,7 @@
+{
+  "name": "OSproje",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

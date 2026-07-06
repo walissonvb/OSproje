@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Bem-vindo, {{ profile.nome }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card>
+    <ion-card-header>
+      <ion-card-title>🔍 Buscar Ordem Existente</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-input
+          label="Número do Protocolo"
+          labelPlacement="floating"
+          [(ngModel)]="protocoloBusca"
+          name="protocoloBusca"
+          placeholder="Ex: OS-2026-123456">
+        </ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="buscarOrdem()" class="ion-margin-top">
+        Buscar Ordem
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+    <!-- Totais -->
+    <ion-card class="ion-margin-top">
+      <ion-card-header>
+        <ion-card-title>Resumo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Pendentes: {{ pendentes }}</p>
+        <p>Em Andamento: {{ andamento }}</p>
+        <p>Concluídas: {{ concluidas }}</p>
+        <canvas #graficoOS></canvas>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Lista de Ordens -->
+    <ion-card class="ion-margin-top">
+      <ion-card-header>
+        <ion-card-title>Ordens de Serviço</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          @for (ordem of ordens; track ordem.protocolo) {
+            <ion-item>
+              <ion-label>
+                <h2>{{ ordem.protocolo || ordem.setor || profile.condominio }}</h2>
+                <p><strong>Nome:</strong> {{ profile.nome }}</p>
+                <p><strong>Natureza:</strong> {{ ordem.natureza }} • <strong>Urgência:</strong> {{ ordem.urgencia }}</p>
+                <p><strong>Descrição:</strong> {{ ordem.descricao }}</p>
+                <p><strong>Data Abertura:</strong> {{ ordem.dataAbertura | date:'short' }}</p>
+                <p class="status" [ngClass]="{
+                  'pendente': ordem.status === 'Pendente',
+                  'andamento': ordem.status === 'Em Andamento',
+                  'concluida': ordem.status === 'Concluída'
+                }">
+                  {{ ordem.status }}
+                </p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+</ion-content>

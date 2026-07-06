@@ -1,0 +1,119 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Bem-vindo, {{ novaOrdem.nomeUsuario}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- ABA 1: Buscar Ordem Existente -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>🔍 Buscar Ordem Existente</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-input
+          label="Número do Protocolo"
+          labelPlacement="floating"
+          [(ngModel)]="protocoloBusca"
+          name="protocoloBusca"
+          placeholder="Ex: OS-2026-123456">
+        </ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="buscarOrdem()" class="ion-margin-top">
+        Buscar Ordem
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- ABA 2: Abrir Nova Ordem -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>📋 Abrir Nova Ordem de Serviço</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+
+      <!-- Etapa 1 -->
+      @if (etapa === 1) {
+        <ion-item>
+          <ion-select label="Tipo" [(ngModel)]="novaOrdem.tipoUsuario" name="tipoUsuario">
+            <ion-select-option value="empresa">Empresa</ion-select-option>
+            <ion-select-option value="condominio">Condomínio</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        @if (novaOrdem.tipoUsuario === 'empresa') {
+          <ion-item>
+            <ion-input label="Setor" [(ngModel)]="novaOrdem.setor" name="setor"></ion-input>
+          </ion-item>
+        }
+
+        @if (novaOrdem.tipoUsuario === 'condominio') {
+          <ion-item>
+            <ion-input label="Local" [(ngModel)]="novaOrdem.local" name="local"></ion-input>
+          </ion-item>
+        }
+
+        <ion-item>
+          <ion-select label="Natureza do Chamado" [(ngModel)]="novaOrdem.natureza" name="natureza">
+            <ion-select-option value="Defeito Mecânico">Defeito Mecânico</ion-select-option>
+            <ion-select-option value="Defeito Elétrico">Defeito Elétrico</ion-select-option>
+            <ion-select-option value="Outros">Outros</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-button expand="block" (click)="proximaEtapa()">Próxima Etapa</ion-button>
+      }
+
+      <!-- Etapa 2 -->
+      @if (etapa === 2) {
+        <ion-item>
+          <ion-select label="Urgência" [(ngModel)]="novaOrdem.urgencia" name="urgencia">
+            <ion-select-option value="Urgência">Urgência</ion-select-option>
+            <ion-select-option value="Emergência">Emergência</ion-select-option>
+            <ion-select-option value="Posso Esperar">Posso Esperar</ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-item>
+          <ion-textarea
+            label="Observações"
+            [(ngModel)]="novaOrdem.descricao"
+            name="descricao"
+            rows="6">
+          </ion-textarea>
+        </ion-item>
+
+        <div class="ion-margin-top">
+          <ion-button expand="block" (click)="abrirNovaOrdem()">Abrir Ordem de Serviço</ion-button>
+          <ion-button expand="block" fill="outline" (click)="etapa = 1">Voltar</ion-button>
+        </div>
+      }
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Seção para Prestadores (atualizar ordem) -->
+  @if (ordemEncontrada) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Ordem Encontrada: {{ ordemEncontrada.protocolo }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-select [(ngModel)]="novoStatus" name="novoStatus">
+            <ion-select-option value="Em Andamento">Em Andamento</ion-select-option>
+            <ion-select-option value="Pendente">Pendente</ion-select-option>
+            <ion-select-option value="Concluída">Concluída</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-button expand="block" (click)="atualizarStatus()">Atualizar Status</ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+</ion-content>

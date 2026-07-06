@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Bem-vindo, {{ profile.nome }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- Perfil Inicial -->
+  @if (showProfileForm) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Identificação Inicial</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-segment [(ngModel)]="userType" (ionChange)="onUserTypeChange()">
+          <ion-segment-button value="empresa">
+            <ion-label>Trabalho em Empresa</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="condominio">
+            <ion-label>Moro em Condomínio</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <!-- Formulário Empresa -->
+        @if (userType === 'empresa') {
+          <form #empresaForm="ngForm">
+            <ion-item>
+              <ion-input label="Nome" [(ngModel)]="profile.nome" name="nome" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Empresa" [(ngModel)]="profile.empresa" name="empresa" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-select label="Cargo" [(ngModel)]="profile.cargo" name="cargo" required>
+                <ion-select-option value="eletricista">Eletricista</ion-select-option>
+                <ion-select-option value="mecanico">Mecânico</ion-select-option>
+                <ion-select-option value="instrumentista">Instrumentista</ion-select-option>
+                <ion-select-option value="colaborador">Colaborador</ion-select-option>
+                <ion-select-option value="terceirizado">Terceirizado</ion-select-option>
+                <ion-select-option value="tecnico">Técnico</ion-select-option>
+                <ion-select-option value="pcm">PCM</ion-select-option>
+                <ion-select-option value="supervisor">Supervisor</ion-select-option>
+                <ion-select-option value="gerente">Gerente</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </form>
+        }
+
+        <!-- Formulário Condomínio -->
+        @if (userType === 'condominio') {
+          <form #condoForm="ngForm">
+            <ion-item>
+              <ion-input label="Nome" [(ngModel)]="profile.nome" name="nome" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Condomínio / Prédio" [(ngModel)]="profile.condominio" name="condominio" required></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Bloco" [(ngModel)]="profile.bloco" name="bloco"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-input label="Apartamento" [(ngModel)]="profile.apartamento" name="apartamento"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-select label="Tipo" [(ngModel)]="profile.tipoUsuario" name="tipoUsuario">
+                <ion-select-option value="morador">Morador</ion-select-option>
+                <ion-select-option value="sindico">Síndico</ion-select-option>
+              </ion-select>
+            </ion-item>
+          </form>
+        }
+
+        <ion-button expand="block" (click)="salvarPerfil()" class="ion-margin-top">
+          Salvar Perfil e Continuar
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- Área Principal -->
+   @if (mostrarBotaoInformacoes) {
+        <ion-button expand="block" color="success" (click)="reportPage()">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Informaçôes
+    </ion-button>
+   }
+
+  @if (!showProfileForm) {
+
+    <ion-button expand="block" color="success" (click)="abrirNovaOrdem()">
+      <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+      Abrir Nova Ordem de Serviço
+    </ion-button>
+
+  }
+</ion-content>

@@ -1,0 +1,194 @@
+<ion-content [fullscreen]="true">
+
+  <div class="container">
+
+    <!-- Painel esquerdo -->
+    <div class="hero-section">
+
+      <div class="hero-content">
+        <h1>ClickOS</h1>
+
+        <p>
+          Aplicativo multiplataforma voltada para a gestão da manutenção
+          industrial e predial, permitindo gerenciar toda rotina de manutenção
+          em um clique.
+        </p>
+
+        <ul>
+          <li>✓ Gestão de Ativos</li>
+          <li>✓ Ordens de Serviço</li>
+          <li>✓ Controle de Estoque</li>
+          <li>✓ Manutenção Preventiva</li>
+          <li>✓ Indicadores MTBF e MTTR</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Painel direito -->
+    <div class="form-section">
+
+      <ion-card>
+
+        <ion-card-header>
+          <ion-card-title>
+            {{ isLoginMode ? 'Entrar' : 'Criar Conta' }}
+          </ion-card-title>
+
+          <ion-card-subtitle>
+            {{ isLoginMode
+            ? 'Entre com suas credenciais'
+            : 'Crie sua conta gratuitamente' }}
+          </ion-card-subtitle>
+
+        </ion-card-header>
+
+        <ion-card-content>
+
+          <form [formGroup]="authForm"
+                (ngSubmit)="onSubmit()">
+
+            <!-- EMAIL -->
+
+            <ion-item class="input-item">
+              <ion-input
+                formControlName="email"
+                type="email"
+                label="E-mail"
+                labelPlacement="floating"
+                placeholder="Digite seu e-mail">
+              </ion-input>
+            </ion-item>
+
+            @if (email?.invalid && email?.touched) {
+              <small class="error">
+                Informe um e-mail válido.
+              </small>
+            }
+
+            <!-- SENHA -->
+
+            <ion-item class="input-item">
+
+              <ion-input
+                formControlName="password"
+                [type]="showPassword ? 'text' : 'password'"
+                label="Senha"
+                labelPlacement="floating"
+                placeholder="Digite sua senha">
+
+              </ion-input>
+
+              <ion-button
+                fill="clear"
+                slot="end"
+                type="button"
+                (click)="togglePassword()">
+
+                <ion-icon
+                  [name]="showPassword ? 'eye-off' : 'eye'">
+                </ion-icon>
+
+              </ion-button>
+
+            </ion-item>
+
+            @if (password?.invalid && password?.touched) {
+              <small class="error">
+                A senha deve possuir no mínimo 6 caracteres.
+              </small>
+            }
+
+            <!-- ESQUECI SENHA -->
+
+            @if (isLoginMode) {
+
+              <div class="forgot-password">
+
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  type="button"
+                  (click)="resetPassword()">
+
+                  Esqueci minha senha
+
+                </ion-button>
+
+              </div>
+
+            }
+
+            <!-- BOTÃO LOGIN -->
+
+            <ion-button
+              expand="block"
+              size="large"
+              type="submit"
+              [disabled]="authForm.invalid || loading">
+
+              <ion-spinner
+                *ngIf="loading"
+                name="crescent">
+              </ion-spinner>
+
+              <span *ngIf="!loading">
+                {{ isLoginMode ? 'Entrar' : 'Cadastrar' }}
+              </span>
+
+            </ion-button>
+
+            <!-- GOOGLE -->
+
+            <ion-button
+              expand="block"
+              fill="outline"
+              color="medium"
+              type="button"
+              (click)="loginGoogle()">
+
+              <ion-icon
+                slot="start"
+                name="logo-google">
+              </ion-icon>
+
+              Entrar com Google
+
+            </ion-button>
+
+            <!-- TROCAR FORM -->
+
+            <div class="toggle-mode">
+
+              <p>
+
+                {{ isLoginMode
+                ? 'Não possui conta?'
+                : 'Já possui conta?' }}
+
+              </p>
+
+              <ion-button
+                fill="clear"
+                type="button"
+                (click)="toggleMode()">
+
+                {{ isLoginMode
+                ? 'Cadastre-se'
+                : 'Fazer Login' }}
+
+              </ion-button>
+
+            </div>
+
+          </form>
+
+        </ion-card-content>
+
+      </ion-card>
+
+    </div>
+
+  </div>
+
+</ion-content>
