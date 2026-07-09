@@ -41,20 +41,24 @@ export class OsService {
     };
   }
 
-  async criarOS(os: Os): Promise<string> {
-    os.dataAbertura = serverTimestamp();
-    os.status = 'Pendente';
+async criarOS(os: Os): Promise<{ protocolo: string; mensagem: string }> {
 
-    const ref = collection(this.firestore, 'ordens_servico');
-    const docRef = await addDoc(ref, os);
+  os.dataAbertura = serverTimestamp();
+  os.status = 'Pendente';
 
-    os.protocolo = docRef.id;
+  const ref = collection(this.firestore, 'ordens_servico');
+  const docRef = await addDoc(ref, os);
 
-    await this.enviarNotificacaoSMS(os);
+  os.protocolo = docRef.id;
 
-    return docRef.id;
-  }
+  const mensagem = await this.enviarNotificacao(os);
 
+  return {
+    protocolo: docRef.id,
+    mensagem
+  };
+
+}
   async atualizarStatus(protocolo: string, status: string, uid: string): Promise<void> {
     const ordemRef = doc(this.firestore, 'ordens_servico', protocolo);
 
@@ -65,24 +69,41 @@ export class OsService {
     });
   }
 
-  private async enviarNotificacaoSMS(os: Os) {
-    const messagesRef = collection(this.firestore, 'messages');
 
-    let telefoneDestino = '+5531999184578';
+private async enviarNotificacao(os: Os): Promise<string> {
 
-    if (os.natureza?.toLowerCase().includes('mec')) {
-      telefoneDestino = '+5531999184578';
-    } else if (os.natureza?.toLowerCase().includes('el')) {
-      telefoneDestino = '+5531999184578';
-    } else {
-      telefoneDestino = '+5531999184578';
-    }
+  const messagesRef = collection(this.firestore, 'messages');
 
-    const mensagem = `🚨 NOVA ORDEM DE SERVIÇO\n\nProtocolo: ${os.protocolo}\nTipo: ${os.tipoUsuario === 'empresa' ? 'Empresa' : 'Condomínio'}\nLocal/Setor: ${os.setor || os.local}\nUrgência: ${os.urgencia}\nDescrição: \( {os.descricao?.substring(0, 100)} \){os.descricao?.length > 100 ? '...' : ''}`;
+  const telefoneDestino = '5531999184578';
 
-    await addDoc(messagesRef, {
-      to: telefoneDestino,
-      body: mensagem
-    });
-  }
-}
+  const mensagem =
+`🚨 *NOVA ORDEM DE SERVIÇO*
+
+📋 Protocolo: ${os.protocolo}
+
+🏢 Tipo:
+${os.tipoUsuario === 'empresa' ? 'Empresa' : 'Condomínio'}
+
+📍 Local/Setor:
+${os.setor || os.local}
+
+⚙️ Natureza:
+${os.natureza}
+
+🚨 Urgência:
+${os.urgencia}
+
+📝 Descrição:
+${os.descricao}`;
+
+  await addDoc(messagesRef, {
+    protocolo: os.protocolo,
+    to: telefoneDestino,
+    body: mensagem,
+    data: serverTimestamp(),
+    enviado: false
+  });
+
+  return mensagem;
+
+}}

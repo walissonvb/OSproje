@@ -98,8 +98,9 @@ export class HomePage implements OnInit, AfterViewInit {
     'OUTRO_ID_AUTORIZADO',
     // Adicione quantos quiser
   ];
-
+  ordemEncontrada: Os | null = null;
   ordens: Os[] = [];
+  protocoloBusca = '';
 
   profile: Profile = {
     uid: '',
@@ -191,6 +192,23 @@ async ngOnInit() {
   }
 
 }
+  async buscarOrdem() {
+    if (!this.protocoloBusca.trim()) {
+      alert('Digite o número do protocolo');
+      return;
+    }
+
+    try {
+      this.ordemEncontrada = await this.osService.buscarPorProtocolo(this.protocoloBusca);
+
+      if (!this.ordemEncontrada) {
+        alert('Ordem não encontrada');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao buscar ordem');
+    }
+  }
 
 ngAfterViewInit(): void {
 

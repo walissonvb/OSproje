@@ -25,7 +25,6 @@ export class OrdemServicoPagePage {
   private authService = inject(FirebaseService);
 
   etapa = 1;
-  protocoloBusca = '';
   ordemEncontrada: Os | null = null;
   novoStatus = 'Em Andamento';
 
@@ -47,25 +46,7 @@ export class OrdemServicoPagePage {
   constructor() {
     addIcons({ logOutOutline, addCircleOutline });
   }
-
   // ====================== BUSCAR ORDEM ======================
-  async buscarOrdem() {
-    if (!this.protocoloBusca.trim()) {
-      alert('Digite o número do protocolo');
-      return;
-    }
-
-    try {
-      this.ordemEncontrada = await this.osService.buscarPorProtocolo(this.protocoloBusca);
-
-      if (!this.ordemEncontrada) {
-        alert('Ordem não encontrada');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao buscar ordem');
-    }
-  }
 
   // ====================== ABRIR NOVA ORDEM ======================
   proximaEtapa() {
@@ -95,9 +76,18 @@ export class OrdemServicoPagePage {
     };
 
     try {
-      const protocolo = await this.osService.criarOS(os as Os);
-      alert(`✅ Ordem aberta com sucesso!\nProtocolo: ${protocolo}`);
+const resultado = await this.osService.criarOS(os as Os);
 
+const numero = '5531999184578';
+
+const texto = encodeURIComponent(resultado.mensagem);
+
+window.open(
+  `https://wa.me/${numero}?text=${texto}`,
+  '_blank'
+);
+
+alert(`✅ Ordem aberta com sucesso!\nProtocolo: ${resultado.protocolo}`);
       this.novaOrdem = { tipoUsuario: 'empresa', setor: '', local: '', natureza: '', urgencia: 'Emergência', descricao: '' };
       this.etapa = 1;
     } catch (error) {

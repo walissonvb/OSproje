@@ -11,30 +11,11 @@
 
 <ion-content class="ion-padding">
 
-  <!-- ABA 1: Buscar Ordem Existente -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>🔍 Buscar Ordem Existente</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-input
-          label="Número do Protocolo"
-          labelPlacement="floating"
-          [(ngModel)]="protocoloBusca"
-          name="protocoloBusca"
-          placeholder="Ex: OS-2026-123456">
-        </ion-input>
-      </ion-item>
-      <ion-button expand="block" (click)="buscarOrdem()" class="ion-margin-top">
-        Buscar Ordem
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
 
   <!-- ABA 2: Abrir Nova Ordem -->
   <ion-card>
     <ion-card-header>
+
       <ion-card-title>📋 Abrir Nova Ordem de Serviço</ion-card-title>
     </ion-card-header>
     <ion-card-content>
