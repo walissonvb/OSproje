@@ -32,8 +32,7 @@ import {
   IonSelect,
   IonSelectOption,
   ToastController,
-  LoadingController
-} from '@ionic/angular/standalone';
+  LoadingController, IonModal } from '@ionic/angular/standalone';
 
 import { addIcons } from 'ionicons';
 import {
@@ -57,7 +56,7 @@ import { Profile } from '../interfaces/profile';
   styleUrls: ['./home-page.page.scss'],
   standalone: true,
 
-  imports: [
+  imports: [IonModal,
     CommonModule,
     FormsModule,
 
@@ -68,6 +67,7 @@ import { Profile } from '../interfaces/profile';
     IonButton,
     IonButtons,
     IonIcon,
+    IonList,
 
     IonCard,
     IonCardHeader,
@@ -86,18 +86,51 @@ import { Profile } from '../interfaces/profile';
   ]
 })
 export class HomePage implements OnInit, AfterViewInit {
-  private profileService = inject(ProfileService);
-  private osService = inject(OsService);
-  private auth = inject(Auth);
-  private router = inject(Router);
-  private toastCtrl = inject(ToastController);
-  private loginService = inject(FirebaseService);
-  private loadingCtrl = inject(LoadingController);
-  private idsAutorizados: string[] = [
-    '4o4vOu8BjaVNDpp2c4WYGWsSL9G2',
-    'OUTRO_ID_AUTORIZADO',
-    // Adicione quantos quiser
-  ];
+/**
+ * Serviço responsável pelo CRUD do perfil do usuário.
+ */
+private profileService = inject(ProfileService);
+
+/**
+ * Serviço responsável pelo CRUD das Ordens de Serviço.
+ */
+private osService = inject(OsService);
+
+/**
+ * Instância do Firebase Authentication.
+ */
+private auth = inject(Auth);
+
+/**
+ * Serviço de navegação entre páginas.
+ */
+private router = inject(Router);
+
+/**
+ * Responsável pelas mensagens Toast.
+ */
+private toastCtrl = inject(ToastController);
+
+/**
+ * Serviço de autenticação da aplicação.
+ */
+private loginService = inject(FirebaseService);
+
+/**
+ * Loading exibido durante carregamentos.
+ */
+private loadingCtrl = inject(LoadingController);/**
+ * Lista de usuários que possuem acesso às funcionalidades
+ * administrativas da aplicação.
+ *
+ * Apenas usuários cujo UID esteja nesta lista
+ * visualizarão o botão "Informações"
+ * e poderão acessar funcionalidades restritas.
+ */
+private idsAutorizados: string[] = [
+  '4o4vOu8BjaVNDpp2c4WYGWsSL9G2',
+  'OUTRO_ID_AUTORIZADO'
+];
   ordemEncontrada: Os | null = null;
   ordens: Os[] = [];
   protocoloBusca = '';
@@ -123,6 +156,8 @@ export class HomePage implements OnInit, AfterViewInit {
   pendentes = 0;
   andamento = 0;
   concluidas = 0;
+  mostrarUltimasOrdens = false;
+  ultimasOrdens: Os[] = [];
 
   grafico: Chart | undefined;
 
@@ -137,7 +172,19 @@ export class HomePage implements OnInit, AfterViewInit {
     });
 
   }
-
+/**
+ * Inicialização da tela.
+ *
+ * Fluxo:
+ *
+ * 1 - Verifica usuário autenticado.
+ * 2 - Exibe ou oculta o botão Informações.
+ * 3 - Carrega o perfil do Firestore.
+ * 4 - Caso seja o primeiro acesso,
+ *     exibe o formulário de cadastro.
+ * 5 - Após carregar o perfil,
+ *     busca as Ordens de Serviço.
+ */
 async ngOnInit() {
    this.loginService.user$.subscribe(user => {
 
@@ -192,8 +239,34 @@ async ngOnInit() {
   }
 
 }
-  async buscarOrdem() {
-    if (!this.protocoloBusca.trim()) {
+abrirUltimasOrdens() {
+
+  this.osService
+    .listarUltimasOrdens()
+    .subscribe(ordens => {
+
+      this.ultimasOrdens = ordens;
+
+      this.mostrarUltimasOrdens = true;
+
+    });
+
+}
+fecharUltimasOrdens() {
+
+  this.mostrarUltimasOrdens = false;
+
+}
+/**
+ * Procura uma Ordem de Serviço pelo protocolo informado.
+ *
+ * Caso exista:
+ *     carrega os dados da OS.
+ *
+ * Caso contrário:
+ *     informa que a ordem não foi encontrada.
+ */
+async buscarOrdem() {    if (!this.protocoloBusca.trim()) {
       alert('Digite o número do protocolo');
       return;
     }
@@ -210,8 +283,13 @@ async ngOnInit() {
     }
   }
 
+/**
+ * O gráfico somente pode ser criado
+ * depois que o Canvas estiver renderizado.
+ *
+ * Por isso o gráfico é criado no AfterViewInit.
+ */
 ngAfterViewInit(): void {
-
     setTimeout(() => {
       this.gerarGrafico();
     }, 500);
@@ -225,11 +303,27 @@ ngAfterViewInit(): void {
     console.log(this.userType);
 
   }
+/**
+ * Navega para a página administrativa
+ * contendo informações e relatórios.
+ *
+ * O botão somente é exibido para
+ * usuários presentes na lista idsAutorizados.
+ */
 reportPage(): void {
-  this.router.navigateByUrl('/report-page');
+    this.router.navigateByUrl('/report-page');
 }
-  carregarOrdens() {
-
+/**
+ * Busca todas as Ordens de Serviço
+ * pertencentes ao usuário autenticado.
+ *
+ * Após receber os dados:
+ *
+ * - atualiza a lista
+ * - contabiliza os status
+ * - recria o gráfico
+ */
+carregarOrdens() {
     const uid = this.auth.currentUser?.uid;
 
     if (!uid) return;
@@ -265,8 +359,14 @@ reportPage(): void {
 
   }
 
-  contabilizarStatus() {
-
+/**
+ * Conta quantas Ordens existem
+ * em cada status.
+ *
+ * Esses valores são utilizados
+ * pelo gráfico da Dashboard.
+ */
+contabilizarStatus() {
     this.pendentes =
       this.ordens.filter(
         x => x.status === 'Pendente'
@@ -283,8 +383,20 @@ reportPage(): void {
       ).length;
 
   }
-
-  gerarGrafico() {
+/**
+ * Gera o gráfico Doughnut utilizando Chart.js.
+ *
+ * O gráfico apresenta:
+ *
+ * • Pendentes
+ * • Em andamento
+ * • Concluídas
+ *
+ * Sempre que novas ordens forem carregadas,
+ * o gráfico é destruído e recriado
+ * para refletir os dados atuais.
+ */
+gerarGrafico() {
 
     if (!this.graficoCanvas) return;
 
@@ -336,7 +448,20 @@ reportPage(): void {
     });
 
   }
-
+/**
+ * Salva o perfil do usuário no Firestore.
+ *
+ * Fluxo:
+ *
+ * 1 - Verifica autenticação.
+ * 2 - Associa o UID ao perfil.
+ * 3 - Valida os campos obrigatórios.
+ * 4 - Salva no Firestore.
+ * 5 - Esconde o formulário.
+ *
+ * O cadastro é realizado apenas
+ * no primeiro acesso do usuário.
+ */
 async salvarPerfil() {
 
   console.log('===== INÍCIO salvarPerfil =====');
@@ -418,12 +543,20 @@ async salvarPerfil() {
   console.log('===== FIM salvarPerfil =====');
 
 }
-
+/**
+ * Redireciona para a página
+ * responsável pela abertura
+ * de uma nova Ordem de Serviço.
+ */
 abrirNovaOrdem() {
   this.router.navigateByUrl('/ordem-servico');   // ← Sem o "-page"
 }
-
-  async logout() {
+/**
+ * Encerra a sessão do usuário
+ * removendo a autenticação
+ * e retornando para a tela de Login.
+ */
+async logout() {
 
     await this.loginService.logout();
 
@@ -433,6 +566,16 @@ abrirNovaOrdem() {
     );
 
   }
+/**
+ * Exibe uma mensagem temporária
+ * na parte superior da tela.
+ *
+ * Utilizado para informar:
+ *
+ * ✔ sucesso
+ * ✔ erro
+ * ✔ avisos
+ */
 
   async showToast(
     mensagem: string,

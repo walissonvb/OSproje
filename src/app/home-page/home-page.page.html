@@ -119,4 +119,82 @@
   </ion-card>
 
   }
-</ion-content>
+<ion-card>
+
+  <ion-card-header>
+    <ion-card-title>
+      Últimas Ordens
+    </ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+
+    <ion-button
+      expand="block"
+      (click)="abrirUltimasOrdens()">
+
+      Ver últimas 10 ordens
+
+    </ion-button>
+
+  </ion-card-content>
+
+</ion-card>
+@if (mostrarUltimasOrdens) {
+
+<div class="painel-ordens">
+
+  <ion-card class="card-full">
+
+    <ion-card-header>
+
+      <ion-card-title>
+
+        Últimas Ordens
+
+      </ion-card-title>
+
+      <ion-button
+        fill="clear"
+        color="danger"
+        (click)="fecharUltimasOrdens()">
+
+        Fechar
+
+      </ion-button>
+
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-list>
+
+        @for (ordem of ultimasOrdens; track ordem.protocolo) {
+
+          <ion-item>
+
+            <ion-label>
+
+              <h2>{{ordem.protocolo}}</h2>
+
+              <p>{{ordem.nomeUsuario}}</p>
+
+              <p>{{ordem.natureza}}</p>
+
+              <p>{{ordem.status}}</p>
+
+            </ion-label>
+
+          </ion-item>
+
+        }
+
+      </ion-list>
+
+    </ion-card-content>
+
+  </ion-card>
+
+</div>
+
+}</ion-content>

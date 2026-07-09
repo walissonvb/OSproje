@@ -12,7 +12,9 @@ import {
   where,
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
+  orderBy,
+  limit
 } from '@angular/fire/firestore';
 
 @Injectable({
@@ -40,7 +42,22 @@ export class OsService {
       ...(snap.data() as Os)
     };
   }
+listarUltimasOrdens() {
 
+  const ref = collection(this.firestore, 'ordens_servico');
+
+  const q = query(
+    ref,
+    orderBy('dataAbertura', 'desc'),
+    limit(10)
+  );
+
+  return collectionData(
+    q,
+    { idField: 'protocolo' }
+  ) as Observable<Os[]>;
+
+}
 async criarOS(os: Os): Promise<{ protocolo: string; mensagem: string }> {
 
   os.dataAbertura = serverTimestamp();

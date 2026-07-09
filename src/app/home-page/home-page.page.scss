@@ -184,5 +184,42 @@ ion-button {
   ion-card {
     border-radius: 20px;
   }
+.painel-ordens {
+
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,.45);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 999;
+
+}
+
+.card-full {
+
+    width: 95%;
+
+    height: 90vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.card-full ion-card-content {
+
+    flex: 1;
+
+    overflow-y: auto;
+
+}
 
 }
