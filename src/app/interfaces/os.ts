@@ -1,13 +1,36 @@
+import { Timestamp } from '@angular/fire/firestore';
+
 export interface Os {
-  uid: string;
+
   protocolo?: string;
+
+  uid: string;
+
+  nomeUsuario: string;
+
   tipoUsuario: 'empresa' | 'condominio';
+
+  empresa?: string;
+
   setor?: string;
-  local? : string;
+
+  local?: string;
+
   natureza: string;
-  urgencia: 'Urgência' | 'Emergência' | 'Posso Esperar';
+
+  urgencia: string;
+
   descricao: string;
-  status: string;
-  dataAbertura?: any;
-  nomeUsuario?: string;
+
+  status:
+    | 'pendente'
+    | 'em andamento'
+    | 'concluída';
+
+  dataAbertura?: Timestamp;
+
+  ultimaAtualizacao?: Timestamp;
+
+  atualizadoPor?: string;
+
 }

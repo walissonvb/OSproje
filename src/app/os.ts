@@ -1,126 +1,191 @@
-import { Os } from './interfaces/os';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
 
 import {
-  Firestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-  collectionData,
-  query,
-  where,
-  doc,
-  getDoc,
-  updateDoc,
-  orderBy,
-  limit
+Firestore,
+collection,
+collectionData,
+query,
+where,
+doc,
+getDoc,
+updateDoc,
+addDoc,
+serverTimestamp,
+orderBy,
+limit
 } from '@angular/fire/firestore';
 
+import { Observable } from 'rxjs';
+
+import { Os } from './interfaces/os';
+
 @Injectable({
-  providedIn: 'root'
+providedIn:'root'
 })
-export class OsService {
+export class OsService{
 
-  private firestore = inject(Firestore);
+private firestore = inject(Firestore);
 
-  listarMinhasOS(uid: string): Observable<Os[]> {
-    const ref = collection(this.firestore, 'ordens_servico');
-    const q = query(ref, where('uid', '==', uid));
+listarMinhasOS(uid:string):Observable<Os[]>{
 
-    return collectionData(q, { idField: 'protocolo' }) as Observable<Os[]>;
-  }
+const ref = collection(this.firestore,'ordens_servico');
 
-  async buscarPorProtocolo(protocolo: string): Promise<Os | null> {
-    const ordemRef = doc(this.firestore, 'ordens_servico', protocolo);
-    const snap = await getDoc(ordemRef);
+const q=query(
+ref,
+where('uid','==',uid),
+orderBy('dataAbertura','desc')
+);
 
-    if (!snap.exists()) return null;
-
-    return {
-      protocolo: snap.id,
-      ...(snap.data() as Os)
-    };
-  }
-listarUltimasOrdens() {
-
-  const ref = collection(this.firestore, 'ordens_servico');
-
-  const q = query(
-    ref,
-    orderBy('dataAbertura', 'desc'),
-    limit(10)
-  );
-
-  return collectionData(
-    q,
-    { idField: 'protocolo' }
-  ) as Observable<Os[]>;
+return collectionData(
+q,
+{idField:'protocolo'}
+) as Observable<Os[]>;
 
 }
+
+listarUltimasOrdens():Observable<Os[]>{
+
+const ref=collection(this.firestore,'ordens_servico');
+
+const q=query(
+ref,
+orderBy('dataAbertura','desc'),
+limit(10)
+);
+
+return collectionData(
+q,
+{idField:'protocolo'}
+) as Observable<Os[]>;
+
+}
+
+async buscarPorProtocolo(protocolo:string){
+
+const ref=doc(
+this.firestore,
+'ordens_servico',
+protocolo
+);
+
+const snap=await getDoc(ref);
+
+if(!snap.exists()) return null;
+
+return{
+
+protocolo:snap.id,
+
+...(snap.data() as Os)
+
+};
+
+}
+
 async criarOS(os: Os): Promise<{ protocolo: string; mensagem: string }> {
 
-  os.dataAbertura = serverTimestamp();
-  os.status = 'Pendente';
+  const dados = {
+    ...os,
+    status: 'pendente',
+    dataAbertura: serverTimestamp()
+  };
 
   const ref = collection(this.firestore, 'ordens_servico');
-  const docRef = await addDoc(ref, os);
+
+  const docRef = await addDoc(ref, dados);
 
   os.protocolo = docRef.id;
 
-  const mensagem = await this.enviarNotificacao(os);
+  const mensagem = this.gerarMensagem(os);
+
+  await this.salvarMensagem(mensagem, docRef.id);
 
   return {
     protocolo: docRef.id,
     mensagem
   };
+}
+async atualizarStatus(
+
+protocolo:string,
+
+status:'pendente'|'em andamento'|'concluída',
+
+uid:string
+
+){
+
+const ref=doc(
+
+this.firestore,
+
+'ordens_servico',
+
+protocolo
+
+);
+
+await updateDoc(ref,{
+
+status,
+
+ultimaAtualizacao:serverTimestamp(),
+
+atualizadoPor:uid
+
+});
 
 }
-  async atualizarStatus(protocolo: string, status: string, uid: string): Promise<void> {
-    const ordemRef = doc(this.firestore, 'ordens_servico', protocolo);
 
-    await updateDoc(ordemRef, {
-      status,
-      ultimaAtualizacao: serverTimestamp(),
-      atualizadoPor: uid
-    });
-  }
+private gerarMensagem(os:Os){
 
-
-private async enviarNotificacao(os: Os): Promise<string> {
-
-  const messagesRef = collection(this.firestore, 'messages');
-
-  const telefoneDestino = '5531999184578';
-
-  const mensagem =
-`🚨 *NOVA ORDEM DE SERVIÇO*
+return `🚨 NOVA ORDEM DE SERVIÇO
 
 📋 Protocolo: ${os.protocolo}
 
-🏢 Tipo:
-${os.tipoUsuario === 'empresa' ? 'Empresa' : 'Condomínio'}
+📍 Local:
+${os.setor||os.local}
 
-📍 Local/Setor:
-${os.setor || os.local}
-
-⚙️ Natureza:
+⚙ Natureza:
 ${os.natureza}
 
 🚨 Urgência:
 ${os.urgencia}
 
-📝 Descrição:
-${os.descricao}`;
+📝 ${os.descricao}`;
 
-  await addDoc(messagesRef, {
-    protocolo: os.protocolo,
-    to: telefoneDestino,
-    body: mensagem,
-    data: serverTimestamp(),
-    enviado: false
-  });
+}
 
-  return mensagem;
+private async salvarMensagem(
 
-}}
+mensagem:string,
+
+protocolo:string
+
+){
+
+const ref=collection(
+
+this.firestore,
+
+'messages'
+
+);
+
+await addDoc(ref,{
+
+protocolo,
+
+body:mensagem,
+
+to:'5531999184578',
+
+enviado:false,
+
+dataCriacao:serverTimestamp()
+
+});
+
+}
+
+}

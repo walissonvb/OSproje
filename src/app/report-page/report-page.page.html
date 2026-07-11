@@ -57,12 +57,8 @@
                 <p><strong>Nome:</strong> {{ profile.nome }}</p>
                 <p><strong>Natureza:</strong> {{ ordem.natureza }} • <strong>Urgência:</strong> {{ ordem.urgencia }}</p>
                 <p><strong>Descrição:</strong> {{ ordem.descricao }}</p>
-                <p><strong>Data Abertura:</strong> {{ ordem.dataAbertura | date:'short' }}</p>
-                <p class="status" [ngClass]="{
-                  'pendente': ordem.status === 'Pendente',
-                  'andamento': ordem.status === 'Em Andamento',
-                  'concluida': ordem.status === 'Concluída'
-                }">
+                <p><strong>Data Abertura:</strong> {{ ordem.dataAbertura?.toDate() | date:'dd/MM/yyyy HH:mm' }}</p>
+                <p><strong>Status:</strong>
                   {{ ordem.status }}
                 </p>
               </ion-label>
@@ -71,4 +67,5 @@
         </ion-list>
       </ion-card-content>
     </ion-card>
+
 </ion-content>

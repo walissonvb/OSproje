@@ -92,8 +92,7 @@ export class OrdemServicoPagePage {
   /**
    * Novo status escolhido pelo responsável pela manutenção.
    */
-  novoStatus = 'Em Andamento';
-
+novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
   /**
    * Modelo da nova Ordem de Serviço.
    *

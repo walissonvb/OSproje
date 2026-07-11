@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import Chart from 'chart.js/auto';
 
 import {
   IonContent,
@@ -17,9 +18,11 @@ import {
   IonCard,
   IonList,
   IonLabel,
-  IonInput
-} from '@ionic/angular/standalone';
+  IonInput,
+  ToastController,
 
+} from '@ionic/angular/standalone';
+import { Auth } from '@angular/fire/auth';
 import { Profile } from '../interfaces/profile';
 import { Os } from '../interfaces/os';
 import { OsService } from '../os';
@@ -53,9 +56,9 @@ import { FirebaseService } from '../firebase';
   styleUrls: ['./report-page.page.scss'],
   standalone: true,
   imports: [
-    IonInput,
     IonContent,
     IonLabel,
+    IonInput,
     IonList,
     IonCard,
     IonCardContent,
@@ -72,7 +75,7 @@ import { FirebaseService } from '../firebase';
     FormsModule
   ]
 })
-export class ReportPagePage implements OnInit {
+export class ReportPagePage implements OnInit, AfterViewInit {
 
   /**
    * Perfil do usuário logado.
@@ -93,6 +96,7 @@ export class ReportPagePage implements OnInit {
     apartamento: '',
     firtUser: true
   };
+  userType: 'empresa' | 'condominio' = 'empresa';
 
   /**
    * Campo utilizado para pesquisar uma OS pelo protocolo.
@@ -131,6 +135,12 @@ export class ReportPagePage implements OnInit {
    * Utilizado para obter o usuário logado.
    */
   private authService = inject(FirebaseService);
+    grafico: Chart | undefined;
+
+  @ViewChild('graficoOS')
+  graficoCanvas!: ElementRef<HTMLCanvasElement>;
+private toastCtrl = inject(ToastController);
+private auth = inject(Auth);
 
   constructor() { }
 
@@ -145,6 +155,8 @@ export class ReportPagePage implements OnInit {
    *  - preencher contadores e gráficos.
    */
   ngOnInit() {
+          this.carregarOrdens();   // Carrega ordens após verificar perfil
+
   }
 
   /**
@@ -179,13 +191,175 @@ export class ReportPagePage implements OnInit {
       alert('Erro ao buscar ordem');
     }
   }
+carregarOrdens() {
+    const uid = this.auth.currentUser?.uid;
 
-  /**
+    if (!uid) return;
+
+    this.osService
+      .listarMinhasOS(uid)
+      .subscribe({
+
+        next: (dados) => {
+
+          this.ordens = dados;
+
+          this.contabilizarStatus();
+
+          setTimeout(() => {
+            this.gerarGrafico();
+          }, 300);
+
+        },
+
+        error: (erro) => {
+
+            console.error('ERRO FIRESTORE', erro);
+
+  alert(JSON.stringify(erro));
+
+          this.showToast(
+            'Erro ao carregar ordens.',
+            'danger'
+          );
+
+        }
+
+      });
+
+  }
+  async showToast(
+    mensagem: string,
+    color: string
+  ) {
+
+    const toast =
+      await this.toastCtrl.create({
+
+        message: mensagem,
+        duration: 3000,
+        color,
+        position: 'top'
+
+      });
+
+    await toast.present();
+
+  }
+
+
+/**
+ * Conta quantas Ordens existem
+ * em cada status.
+ *
+ * Esses valores são utilizados
+ * pelo gráfico da Dashboard.
+ */
+contabilizarStatus(){
+
+this.pendentes=
+
+this.ordens.filter(
+
+o=>o.status==='pendente'
+
+).length;
+
+this.andamento=
+
+this.ordens.filter(
+
+o=>o.status==='em andamento'
+
+).length;
+
+this.concluidas=
+
+this.ordens.filter(
+
+o=>o.status==='concluída'
+
+).length;
+
+}  /**
    * Método reservado para logout.
    *
    * Pode ser ligado ao serviço de autenticação quando for implementado
    * o fluxo completo de sair do sistema.
    */
+  /**
+ * O gráfico somente pode ser criado
+ * depois que o Canvas estiver renderizado.
+ *
+ * Por isso o gráfico é criado no AfterViewInit.
+ */
+ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.gerarGrafico();
+    }, 500);
+
+  }
+
+  onUserTypeChange() {
+
+    this.profile.tipoUsuario = this.userType;
+
+    console.log(this.userType);
+
+  }
+gerarGrafico() {
+
+    if (!this.graficoCanvas) return;
+
+    if (this.grafico) {
+      this.grafico.destroy();
+    }
+
+    const ctx =
+      this.graficoCanvas
+        .nativeElement
+        .getContext('2d');
+
+    if (!ctx) return;
+
+    this.grafico = new Chart(ctx, {
+
+      type: 'doughnut',
+
+      data: {
+
+        labels: [
+          'Pendentes',
+          'Em andamento',
+          'Concluídas'
+        ],
+
+        datasets: [{
+          data: [
+            this.pendentes,
+            this.andamento,
+            this.concluidas
+          ]
+        }]
+
+      },
+
+      options: {
+
+        responsive: true,
+
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+
+      }
+
+    });
+
+  }
+
   logout() {
 
     this.authService.logout();

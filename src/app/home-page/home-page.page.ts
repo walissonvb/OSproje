@@ -56,7 +56,7 @@ import { Profile } from '../interfaces/profile';
   styleUrls: ['./home-page.page.scss'],
   standalone: true,
 
-  imports: [IonModal,
+  imports: [
     CommonModule,
     FormsModule,
 
@@ -336,7 +336,6 @@ carregarOrdens() {
 
           this.ordens = dados;
 
-          this.contabilizarStatus();
 
           setTimeout(() => {
             this.gerarGrafico();
@@ -366,23 +365,6 @@ carregarOrdens() {
  * Esses valores são utilizados
  * pelo gráfico da Dashboard.
  */
-contabilizarStatus() {
-    this.pendentes =
-      this.ordens.filter(
-        x => x.status === 'Pendente'
-      ).length;
-
-    this.andamento =
-      this.ordens.filter(
-        x => x.status === 'Em Andamento'
-      ).length;
-
-    this.concluidas =
-      this.ordens.filter(
-        x => x.status === 'Concluída'
-      ).length;
-
-  }
 /**
  * Gera o gráfico Doughnut utilizando Chart.js.
  *
