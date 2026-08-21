@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit } from 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Chart from 'chart.js/auto';
+import { Router } from '@angular/router';
 
 import {
   IonContent,
@@ -20,13 +21,14 @@ import {
   IonLabel,
   IonInput,
   ToastController,
-
+  LoadingController
 } from '@ionic/angular/standalone';
 import { Auth } from '@angular/fire/auth';
 import { Profile } from '../interfaces/profile';
 import { Os } from '../interfaces/os';
 import { OsService } from '../os';
 import { FirebaseService } from '../firebase';
+import { ProfileService } from '../profile';
 /**
  * -----------------------------------------------------------------------------
  * ReportPagePage
@@ -76,6 +78,7 @@ import { FirebaseService } from '../firebase';
   ]
 })
 export class ReportPagePage implements OnInit, AfterViewInit {
+  showProfileForm = true;        // Controla se mostra o formulário
 
   /**
    * Perfil do usuário logado.
@@ -88,6 +91,7 @@ export class ReportPagePage implements OnInit, AfterViewInit {
   profile: Profile = {
     uid: '',
     nome: '',
+    telefone: '',
     empresa: '',
     cargo: 'terceiro',
     condominio: '',
@@ -124,6 +128,8 @@ export class ReportPagePage implements OnInit, AfterViewInit {
    * relatórios ou visualização em lista.
    */
   ordens: Os[] = [];
+  mostrarBotaoInformacoes = true;
+private router = inject(Router);
 
   /**
    * Serviço responsável por acessar o Firestore
@@ -141,6 +147,16 @@ export class ReportPagePage implements OnInit, AfterViewInit {
   graficoCanvas!: ElementRef<HTMLCanvasElement>;
 private toastCtrl = inject(ToastController);
 private auth = inject(Auth);
+private profileService = inject(ProfileService);
+private loginService = inject(FirebaseService);
+private idsAutorizados: string[] = [
+  '4o4vOu8BjaVNDpp2c4WYGWsSL9G2',
+  'OUTRO_ID_AUTORIZADO'
+];
+private loadingCtrl = inject(LoadingController);
+/**
+ * Inicialização da tela.
+ */
 
   constructor() { }
 
@@ -154,10 +170,60 @@ private auth = inject(Auth);
    *  - validar permissões de acesso;
    *  - preencher contadores e gráficos.
    */
-  ngOnInit() {
-          this.carregarOrdens();   // Carrega ordens após verificar perfil
+async ngOnInit() {
+   this.loginService.user$.subscribe(user => {
 
+    this.mostrarBotaoInformacoes =
+      !!user && this.idsAutorizados.includes(user.uid);
+
+  });
+
+
+  const loading = await this.loadingCtrl.create({
+    message: 'Carregando perfil...'
+  });
+  await loading.present();
+
+  try {
+    // Aguarda usuário autenticado
+    const user = await this.loginService.getCurrentUser();
+
+    if (!user) {
+      this.router.navigateByUrl('/login-page', { replaceUrl: true });
+      return;
+    }
+
+    this.profile.uid = user.uid;
+
+    // Carrega o perfil do Firestore
+    this.profileService.buscarPerfil(user.uid).subscribe({
+      next: (perfilSalvo: Profile | undefined) => {
+
+        if (perfilSalvo && perfilSalvo.firtUser === true) {   // ← Correção aqui
+          this.profile = perfilSalvo;
+          this.showProfileForm = false;
+          this.userType = perfilSalvo.tipoUsuario || 'empresa';
+        } else {
+          this.showProfileForm = true;
+        }
+
+        this.carregarOrdens();   // Carrega ordens após verificar perfil
+      },
+      error: (erro) => {
+        console.error('Erro ao buscar perfil:', erro);
+        this.showProfileForm = true; // Mostra formulário se der erro
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    await this.showToast('Erro ao carregar dados', 'danger');
+    this.showProfileForm = true;
+  } finally {
+    await loading.dismiss();
   }
+
+}
 
   /**
    * Busca uma Ordem de Serviço pelo protocolo informado.
@@ -191,6 +257,7 @@ private auth = inject(Auth);
       alert('Erro ao buscar ordem');
     }
   }
+
 carregarOrdens() {
     const uid = this.auth.currentUser?.uid;
 
@@ -281,13 +348,14 @@ o=>o.status==='concluída'
 
 ).length;
 
-}  /**
+}
+ /**
    * Método reservado para logout.
    *
    * Pode ser ligado ao serviço de autenticação quando for implementado
    * o fluxo completo de sair do sistema.
    */
-  /**
+ /**
  * O gráfico somente pode ser criado
  * depois que o Canvas estiver renderizado.
  *

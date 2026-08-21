@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
 import { OsService } from '../os';
 import { FirebaseService } from '../firebase';
 import { Os } from '../interfaces/os';
-
+import { Profile } from '../interfaces/profile';
+import { ProfileService } from '../profile';
 import { addIcons } from 'ionicons';
 import {
   logOutOutline,
@@ -28,15 +28,14 @@ import {
   IonHeader,
   IonInput,
   IonSelect,
-  IonTextarea
-} from "@ionic/angular/standalone";
+  IonTextarea, IonLabel } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-ordem-servico-page',
   templateUrl: './ordem-servico-page.page.html',
   styleUrls: ['./ordem-servico-page.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonLabel,
     IonSelectOption,
     IonSelect,
     IonTextarea,
@@ -58,6 +57,7 @@ import {
   ]
 })
 export class OrdemServicoPagePage {
+  private profileService = inject(ProfileService);
 
   /**
    * Serviço responsável pelo CRUD das Ordens de Serviço.
@@ -120,13 +120,42 @@ novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
     // adicionar outros UIDs autorizados
   ];
 
+profile!: Profile;
+
   constructor() {
     addIcons({
       logOutOutline,
       addCircleOutline
     });
   }
+async ngOnInit() {
 
+  const user = this.authService.getCurrentUser();
+
+  if (!user) return;
+
+  this.profileService.buscarPerfil(user.uid)
+    .subscribe(perfil => {
+
+      this.profile = perfil;
+
+      this.novaOrdem.nomeUsuario = perfil.nome;
+
+      this.novaOrdem.tipoUsuario = perfil.tipoUsuario;
+
+      if (perfil.tipoUsuario === 'empresa') {
+
+        this.novaOrdem.setor = perfil.empresa;
+
+      } else {
+
+        this.novaOrdem.local = perfil.condominio;
+
+      }
+
+    });
+
+}
   /**
    * Avança para a segunda etapa do formulário.
    *

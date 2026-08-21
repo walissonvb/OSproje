@@ -138,6 +138,7 @@ private idsAutorizados: string[] = [
   profile: Profile = {
     uid: '',
     nome: '',
+    telefone: '',
     empresa: '',
     cargo: '',
     condominio: '',
@@ -335,7 +336,7 @@ carregarOrdens() {
         next: (dados) => {
 
           this.ordens = dados;
-
+          this.contabilizarStatus();
 
           setTimeout(() => {
             this.gerarGrafico();
@@ -357,7 +358,24 @@ carregarOrdens() {
       });
 
   }
+contabilizarStatus(): void {
 
+  this.pendentes =
+    this.ordens.filter(
+      o => o.status === 'pendente'
+    ).length;
+
+  this.andamento =
+    this.ordens.filter(
+      o => o.status === 'em andamento'
+    ).length;
+
+  this.concluidas =
+    this.ordens.filter(
+      o => o.status === 'concluída'
+    ).length;
+
+}
 /**
  * Conta quantas Ordens existem
  * em cada status.

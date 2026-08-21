@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Bem-vindo, {{ novaOrdem.nomeUsuario}}</ion-title>
+    <ion-title>Bem-vindo {{ novaOrdem.nomeUsuario }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="logout()">
         <ion-icon name="log-out-outline"></ion-icon>
@@ -22,12 +22,9 @@
 
       <!-- Etapa 1 -->
       @if (etapa === 1) {
-        <ion-item>
-          <ion-select label="Tipo" [(ngModel)]="novaOrdem.tipoUsuario" name="tipoUsuario">
-            <ion-select-option value="empresa">Empresa</ion-select-option>
-            <ion-select-option value="condominio">Condomínio</ion-select-option>
-          </ion-select>
-        </ion-item>
+<ion-item>
+  <ion-label>Tipo: {{ novaOrdem.tipoUsuario }}</ion-label>
+</ion-item>
 
         @if (novaOrdem.tipoUsuario === 'empresa') {
           <ion-item>

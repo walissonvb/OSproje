@@ -26,23 +26,21 @@ export class OsService{
 
 private firestore = inject(Firestore);
 
-listarMinhasOS(uid:string):Observable<Os[]>{
+listarMinhasOS(uid:string){
 
-const ref = collection(this.firestore,'ordens_servico');
+  const ref = collection(this.firestore,'ordens_servico');
 
-const q=query(
-ref,
-where('uid','==',uid),
-orderBy('dataAbertura','desc')
-);
+  const q = query(
+      ref,
+      where('uid','==',uid)
+  );
 
-return collectionData(
-q,
-{idField:'protocolo'}
-) as Observable<Os[]>;
+  return collectionData(
+      q,
+      { idField:'protocolo' }
+  ) as Observable<Os[]>;
 
 }
-
 listarUltimasOrdens():Observable<Os[]>{
 
 const ref=collection(this.firestore,'ordens_servico');

@@ -1,6 +1,7 @@
 export interface Profile {
   uid: string;
   nome: string;
+  telefone: string;
   empresa?: string;
   cargo?: string;
   condominio?: string;
