@@ -148,7 +148,7 @@ ${os.setor||os.local}
 ${os.natureza}
 
 🚨 Urgência:
-${os.urgencia}
+${os.escalaPrioridade}
 
 📝 ${os.descricao}`;
 

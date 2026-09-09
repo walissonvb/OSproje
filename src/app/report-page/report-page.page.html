@@ -55,7 +55,7 @@
               <ion-label>
                 <h2>{{ ordem.protocolo || ordem.setor || profile.condominio }}</h2>
                 <p><strong>Nome:</strong> {{ profile.nome }}</p>
-                <p><strong>Natureza:</strong> {{ ordem.natureza }} • <strong>Urgência:</strong> {{ ordem.urgencia }}</p>
+                <p><strong>Natureza:</strong> {{ ordem.natureza }} • <strong>Urgência:</strong> {{ ordem.escalaPrioridade }}</p>
                 <p><strong>Descrição:</strong> {{ ordem.descricao }}</p>
                 <p><strong>Data Abertura:</strong> {{ ordem.dataAbertura?.toDate() | date:'dd/MM/yyyy HH:mm' }}</p>
                 <p><strong>Status:</strong>

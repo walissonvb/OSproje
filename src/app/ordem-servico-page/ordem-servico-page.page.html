@@ -28,7 +28,12 @@
 
         @if (novaOrdem.tipoUsuario === 'empresa') {
           <ion-item>
-            <ion-input label="Setor" [(ngModel)]="novaOrdem.setor" name="setor"></ion-input>
+            <ion-select label="Setor" [(ngModel)]="novaOrdem.setor" name="setor">
+              <ion-select-option value="PREPARAÇÃO DE MASSA">PREPARAÇÃO DE MASSA</ion-select-option>
+              <ion-select-option value="MAQUINA 7">MAQUINA 7</ion-select-option>
+              <ion-select-option value="ETA">ETA</ion-select-option>
+              <ion-select-option value="ETE">ETE</ion-select-option>
+            </ion-select>
           </ion-item>
         }
 
@@ -52,10 +57,12 @@
       <!-- Etapa 2 -->
       @if (etapa === 2) {
         <ion-item>
-          <ion-select label="Urgência" [(ngModel)]="novaOrdem.urgencia" name="urgencia">
-            <ion-select-option value="Urgência">Urgência</ion-select-option>
-            <ion-select-option value="Emergência">Emergência</ion-select-option>
-            <ion-select-option value="Posso Esperar">Posso Esperar</ion-select-option>
+          <ion-select label="Urgência" [(ngModel)]="novaOrdem.escalaPrioridade" name="urgencia">
+            <ion-select-option value="emergencial">Emergencial (1): atendimento imediato;</ion-select-option>
+            <ion-select-option value="urgente">Urgente (2): atendimento o mais breve possível;</ion-select-option>
+            <ion-select-option value="Necessáriar">Necessária (3): atendimento em alguns dias;</ion-select-option>
+            <ion-select-option value="Rotineira">Rotineira (4): atendimento em algumas semanas;</ion-select-option>
+            <ion-select-option value="Prorrogável">Prorrogável (5): atendimento a longo prazo.</ion-select-option>
           </ion-select>
         </ion-item>
 

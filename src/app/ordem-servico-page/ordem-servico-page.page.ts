@@ -104,7 +104,7 @@ novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
     setor: '',
     local: '',
     natureza: '',
-    urgencia: 'Posso Esperar',
+    escalaPrioridade: 'Posso Esperar',
     descricao: '',
     nomeUsuario: ''
   };
@@ -190,7 +190,7 @@ async ngOnInit() {
    */
   async abrirNovaOrdem() {
 
-    if (!this.novaOrdem.descricao || !this.novaOrdem.urgencia) {
+    if (!this.novaOrdem.descricao || !this.novaOrdem.escalaPrioridade) {
 
       alert('Preencha a descrição e urgência');
       return;
@@ -250,10 +250,10 @@ async ngOnInit() {
       this.novaOrdem = {
 
         tipoUsuario: 'empresa',
-        setor: '',
+        setor: 'PREPARAÇÃO DE MASSA' + 'MAQUINA 7' + 'ETA' + 'ETE',
         local: '',
         natureza: '',
-        urgencia: 'Emergência',
+        escalaPrioridade: 'Emergência',
         descricao: ''
 
       };

@@ -18,7 +18,7 @@ export interface Os {
 
   natureza: string;
 
-  urgencia: string;
+  escalaPrioridade: string;
 
   descricao: string;
 
