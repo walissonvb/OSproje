@@ -29,6 +29,8 @@ export interface Os {
 
   dataAbertura?: Timestamp;
 
+  dataFechamento?: string;
+
   ultimaAtualizacao?: Timestamp;
 
   atualizadoPor?: string;

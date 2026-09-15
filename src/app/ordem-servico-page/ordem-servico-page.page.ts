@@ -28,7 +28,10 @@ import {
   IonHeader,
   IonInput,
   IonSelect,
-  IonTextarea, IonLabel } from "@ionic/angular/standalone";
+  IonTextarea, IonLabel
+} from "@ionic/angular/standalone";
+import { Timestamp } from '@angular/fire/firestore';
+
 
 @Component({
   selector: 'app-ordem-servico-page',
@@ -92,7 +95,7 @@ export class OrdemServicoPagePage {
   /**
    * Novo status escolhido pelo responsável pela manutenção.
    */
-novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
+  novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
   /**
    * Modelo da nova Ordem de Serviço.
    *
@@ -106,7 +109,13 @@ novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
     natureza: '',
     escalaPrioridade: 'Posso Esperar',
     descricao: '',
-    nomeUsuario: ''
+    nomeUsuario: '',
+    dataFechamento: '',
+    dataAbertura: Timestamp.fromDate(new Date()),
+    ultimaAtualizacao: Timestamp.fromDate(new Date()),
+
+
+
   };
 
   /**
@@ -120,7 +129,7 @@ novoStatus: 'pendente' | 'em andamento' | 'concluída' = 'em andamento';
     // adicionar outros UIDs autorizados
   ];
 
-profile!: Profile;
+  profile!: Profile;
 
   constructor() {
     addIcons({
@@ -128,34 +137,34 @@ profile!: Profile;
       addCircleOutline
     });
   }
-async ngOnInit() {
+  async ngOnInit() {
 
-  const user = this.authService.getCurrentUser();
+    const user = this.authService.getCurrentUser();
 
-  if (!user) return;
+    if (!user) return;
 
-  this.profileService.buscarPerfil(user.uid)
-    .subscribe(perfil => {
+    this.profileService.buscarPerfil(user.uid)
+      .subscribe(perfil => {
 
-      this.profile = perfil;
+        this.profile = perfil;
 
-      this.novaOrdem.nomeUsuario = perfil.nome;
+        this.novaOrdem.nomeUsuario = perfil.nome;
 
-      this.novaOrdem.tipoUsuario = perfil.tipoUsuario;
+        this.novaOrdem.tipoUsuario = perfil.tipoUsuario;
 
-      if (perfil.tipoUsuario === 'empresa') {
+        if (perfil.tipoUsuario === 'empresa') {
 
-        this.novaOrdem.setor = perfil.empresa;
+          this.novaOrdem.setor = perfil.empresa;
 
-      } else {
+        } else {
 
-        this.novaOrdem.local = perfil.condominio;
+          this.novaOrdem.local = perfil.condominio;
 
-      }
+        }
 
-    });
+      });
 
-}
+  }
   /**
    * Avança para a segunda etapa do formulário.
    *
@@ -254,7 +263,10 @@ async ngOnInit() {
         local: '',
         natureza: '',
         escalaPrioridade: 'Emergência',
-        descricao: ''
+        descricao: '',
+        dataAbertura: Timestamp.fromDate(new Date()),
+        dataFechamento: '',
+        ultimaAtualizacao: Timestamp.fromDate(new Date()),
 
       };
 

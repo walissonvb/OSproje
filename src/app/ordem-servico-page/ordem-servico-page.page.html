@@ -22,83 +22,93 @@
 
       <!-- Etapa 1 -->
       @if (etapa === 1) {
-<ion-item>
-  <ion-label>Tipo: {{ novaOrdem.tipoUsuario }}</ion-label>
-</ion-item>
+      <ion-item>
+        <ion-label>Tipo: {{ novaOrdem.tipoUsuario }}</ion-label>
+      </ion-item>
 
-        @if (novaOrdem.tipoUsuario === 'empresa') {
-          <ion-item>
-            <ion-select label="Setor" [(ngModel)]="novaOrdem.setor" name="setor">
-              <ion-select-option value="PREPARAÇÃO DE MASSA">PREPARAÇÃO DE MASSA</ion-select-option>
-              <ion-select-option value="MAQUINA 7">MAQUINA 7</ion-select-option>
-              <ion-select-option value="ETA">ETA</ion-select-option>
-              <ion-select-option value="ETE">ETE</ion-select-option>
-            </ion-select>
-          </ion-item>
-        }
+      @if (novaOrdem.tipoUsuario === 'empresa') {
+      <ion-item>
+        <ion-select label="Setor" [(ngModel)]="novaOrdem.setor" name="setor">
+          <ion-select-option value="PREPARAÇÃO DE MASSA">PREPARAÇÃO DE MASSA</ion-select-option>
+          <ion-select-option value="MAQUINA 7">MAQUINA 7</ion-select-option>
+          <ion-select-option value="ETA">ETA</ion-select-option>
+          <ion-select-option value="ETE">ETE</ion-select-option>
+        </ion-select>
+      </ion-item>
+      }
 
-        @if (novaOrdem.tipoUsuario === 'condominio') {
-          <ion-item>
-            <ion-input label="Local" [(ngModel)]="novaOrdem.local" name="local"></ion-input>
-          </ion-item>
-        }
+      @if (novaOrdem.tipoUsuario === 'condominio') {
+      <ion-item>
+        <ion-input label="Local" [(ngModel)]="novaOrdem.local" name="local"></ion-input>
+      </ion-item>
+      }
+      <ion-item>
+        <ion-select label="Natureza do Chamado" [(ngModel)]="novaOrdem.natureza" name="natureza">
+          <ion-select-option value="Defeito Mecânico">Defeito Mecânico</ion-select-option>
+          <ion-select-option value="Defeito Elétrico">Defeito Elétrico</ion-select-option>
+          <ion-select-option value="Outros">Outros</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-label>Última Atualização</ion-label>
+        <ion-input [value]="novaOrdem.ultimaAtualizacao?.toDate() | date:'dd/MM/yyyy'" readonly>
+        </ion-input>
+      </ion-item>
 
-        <ion-item>
-          <ion-select label="Natureza do Chamado" [(ngModel)]="novaOrdem.natureza" name="natureza">
-            <ion-select-option value="Defeito Mecânico">Defeito Mecânico</ion-select-option>
-            <ion-select-option value="Defeito Elétrico">Defeito Elétrico</ion-select-option>
-            <ion-select-option value="Outros">Outros</ion-select-option>
-          </ion-select>
-        </ion-item>
-
-        <ion-button expand="block" (click)="proximaEtapa()">Próxima Etapa</ion-button>
+      <ion-item>
+        <ion-label>Data de Abertura</ion-label>
+        <ion-input [value]="novaOrdem.dataAbertura?.toDate() | date:'HH:mm'" readonly>
+        </ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label>Data de Fechamento</ion-label>
+        <ion-input type="time" [(ngModel)]="novaOrdem.dataFechamento" name="horario" required>
+        </ion-input>
+      </ion-item>
+      <ion-button expand="block" (click)="proximaEtapa()">Próxima Etapa</ion-button>
       }
 
       <!-- Etapa 2 -->
       @if (etapa === 2) {
-        <ion-item>
-          <ion-select label="Urgência" [(ngModel)]="novaOrdem.escalaPrioridade" name="urgencia">
-            <ion-select-option value="emergencial">Emergencial (1): atendimento imediato;</ion-select-option>
-            <ion-select-option value="urgente">Urgente (2): atendimento o mais breve possível;</ion-select-option>
-            <ion-select-option value="Necessáriar">Necessária (3): atendimento em alguns dias;</ion-select-option>
-            <ion-select-option value="Rotineira">Rotineira (4): atendimento em algumas semanas;</ion-select-option>
-            <ion-select-option value="Prorrogável">Prorrogável (5): atendimento a longo prazo.</ion-select-option>
-          </ion-select>
-        </ion-item>
+      <ion-item>
+        <ion-select label="Urgência" [(ngModel)]="novaOrdem.escalaPrioridade" name="urgencia">
+          <ion-select-option value="emergencial">Emergencial (1): atendimento imediato;</ion-select-option>
+          <ion-select-option value="urgente">Urgente (2): atendimento o mais breve possível;</ion-select-option>
+          <ion-select-option value="Necessáriar">Necessária (3): atendimento em alguns dias;</ion-select-option>
+          <ion-select-option value="Rotineira">Rotineira (4): atendimento em algumas semanas;</ion-select-option>
+          <ion-select-option value="Prorrogável">Prorrogável (5): atendimento a longo prazo.</ion-select-option>
+        </ion-select>
+      </ion-item>
 
-        <ion-item>
-          <ion-textarea
-            label="Observações"
-            [(ngModel)]="novaOrdem.descricao"
-            name="descricao"
-            rows="6">
-          </ion-textarea>
-        </ion-item>
+      <ion-item>
+        <ion-textarea label="Observações" [(ngModel)]="novaOrdem.descricao" name="descricao" rows="6">
+        </ion-textarea>
+      </ion-item>
 
-        <div class="ion-margin-top">
-          <ion-button expand="block" (click)="abrirNovaOrdem()">Abrir Ordem de Serviço</ion-button>
-          <ion-button expand="block" fill="outline" (click)="etapa = 1">Voltar</ion-button>
-        </div>
+      <div class="ion-margin-top">
+        <ion-button expand="block" (click)="abrirNovaOrdem()">Abrir Ordem de Serviço</ion-button>
+        <ion-button expand="block" fill="outline" (click)="etapa = 1">Voltar</ion-button>
+      </div>
       }
     </ion-card-content>
   </ion-card>
 
   <!-- Seção para Prestadores (atualizar ordem) -->
   @if (ordemEncontrada) {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Ordem Encontrada: {{ ordemEncontrada.protocolo }}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-item>
-          <ion-select [(ngModel)]="novoStatus" name="novoStatus">
-            <ion-select-option value="Em Andamento">Em Andamento</ion-select-option>
-            <ion-select-option value="Pendente">Pendente</ion-select-option>
-            <ion-select-option value="Concluída">Concluída</ion-select-option>
-          </ion-select>
-        </ion-item>
-        <ion-button expand="block" (click)="atualizarStatus()">Atualizar Status</ion-button>
-      </ion-card-content>
-    </ion-card>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Ordem Encontrada: {{ ordemEncontrada.protocolo }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-select [(ngModel)]="novoStatus" name="novoStatus">
+          <ion-select-option value="Em Andamento">Em Andamento</ion-select-option>
+          <ion-select-option value="Pendente">Pendente</ion-select-option>
+          <ion-select-option value="Concluída">Concluída</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-button expand="block" (click)="atualizarStatus()">Atualizar Status</ion-button>
+    </ion-card-content>
+  </ion-card>
   }
 </ion-content>
