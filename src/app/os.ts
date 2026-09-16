@@ -135,14 +135,17 @@ atualizadoPor:uid
 
 }
 
-private gerarMensagem(os:Os){
+private gerarMensagem(os: Os) {
+  const horaInicio = os.dataAbertura ? os.dataAbertura.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+  const horaFim = os.dataFechamento || '';
+  const ultimaAtualizacao = os.ultimaAtualizacao ? os.ultimaAtualizacao.toDate().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
 
-return `🚨 NOVA ORDEM DE SERVIÇO
+  return `🚨 NOVA ORDEM DE SERVIÇO
 
 📋 Protocolo: ${os.protocolo}
 
 📍 Local:
-${os.setor||os.local}
+${os.setor || os.local}
 
 ⚙ Natureza:
 ${os.natureza}
@@ -152,20 +155,14 @@ ${os.escalaPrioridade}
 
 📝 ${os.descricao}
 
-
 Data de Abertura:
+${ultimaAtualizacao}
 
-${os.ultimaAtualizacao};
+Hora de Início:
+${horaInicio}
 
-Hora de Inicio:
-
-${os.dataAbertura};
-
-Hora de termino:
-
-${os.dataFechamento}`;
-
-
+Hora de Término:
+${horaFim}`;
 }
 
 private async salvarMensagem(
