@@ -150,7 +150,21 @@ ${os.natureza}
 🚨 Urgência:
 ${os.escalaPrioridade}
 
-📝 ${os.descricao}`;
+📝 ${os.descricao}
+
+
+Data de Abertura:
+
+${os.ultimaAtualizacao};
+
+Hora de Inicio:
+
+${os.dataAbertura};
+
+Hora de termino:
+
+${os.dataFechamento}`;
+
 
 }
 
